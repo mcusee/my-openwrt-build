@@ -115,6 +115,28 @@ echo "替换完成"
 wget -O .config https://raw.githubusercontent.com/mcusee/studio/main/.config
 
 echo "==============================="
+echo "修正错误"
+echo "==============================="
+if [ -f feeds/small/shadowsocks-libev/Makefile ]; then
+    echo "修正 shadowsocks-libev 配置..."
+
+    FILE="feeds/small/shadowsocks-libev/Makefile"
+
+    #强制更新 PKG_MIRROR_HASH
+    sed -i 's/^PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=ee83b43b36d6a51cfbee72254b6088d4b625feadf06cc2f0bcb810c8236438a5/' "$FILE"
+
+    #如果还没添加 WITH_DOC_HTML，则插入
+    if ! grep -q "WITH_DOC_HTML" "$FILE"; then
+        sed -i '/^CMAKE_OPTIONS += \\/a\ \ \ \ -DWITH_DOC_HTML=OFF \\' "$FILE"
+    fi
+
+    #删除旧下载包（防止 hash 校验失败）
+    rm -f dl/shadowsocks-libev*
+
+    echo "shadowsocks-libev 修正完成"
+fi
+
+echo "==============================="
 echo "DIY 脚本执行完成"
 echo "==============================="
 
