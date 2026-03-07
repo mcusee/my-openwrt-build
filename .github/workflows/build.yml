@@ -68,7 +68,8 @@ jobs:
         with:
           name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-packages
           path: lede/bin/packages/x86_64/
-                      # 发布 Release
+          
+      # 发布 Release
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
