@@ -46,51 +46,22 @@ jobs:
           chmod +x ../build-diy.sh
           ../build-diy.sh
 
-      # 获取日期 + 内核 + 固件名
+      # 获取日期 + 内核版本
       - name: Get Build Info
         run: |
-          DATE=$(date +%Y-%m-%d)
-
-          KERNEL=$(grep KERNEL_PATCHVER lede/target/linux/x86/Makefile | cut -d= -f2)
-
-          FILE=$(ls lede/bin/targets/x86/64/*squashfs-combined*.img.gz | head -n1)
-
-          NAME=$(basename "$FILE" .img.gz)
-
-          FIRMWARE_NAME="${DATE}-k${KERNEL}-${NAME}"
-          PACKAGE_NAME="${DATE}-k${KERNEL}-packages"
-
-          echo "FIRMWARE_NAME=$FIRMWARE_NAME" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+          echo "DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+          echo "KERNEL=$(grep KERNEL_PATCHVER lede/target/linux/x86/Makefile | awk -F= '{print $2}')" >> $GITHUB_ENV
 
       # 上传固件
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.FIRMWARE_NAME }}
-          path: lede/bin/targets/x86/64/*
+          name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-firmware
+          path: lede/bin/targets/x86/64/
 
       # 上传 packages
       - name: Upload Packages
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PACKAGE_NAME }}
-          path: lede/bin/packages/x86_64/*
-
-      # 打包固件
-      - name: Pack Firmware
-        run: |
-          cd lede/bin/targets/x86/64
-          tar -czf ../../../${{ env.FIRMWARE_NAME }}.tar.gz *
-
-      # 发布 Release
-      - name: Publish Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.FIRMWARE_NAME }}
-          name: ${{ env.FIRMWARE_NAME }}
-          files: |
-            lede/${{ env.FIRMWARE_NAME }}.tar.gz
-            lede/bin/packages/x86_64/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+          name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-packages
+          path: lede/bin/packages/x86_64/
