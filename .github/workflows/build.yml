@@ -3,6 +3,9 @@ name: LEDE Build
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -65,3 +68,16 @@ jobs:
         with:
           name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-packages
           path: lede/bin/packages/x86_64/
+                      # 发布 Release
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.DATE }}-${{ env.FW_NAME }}-k${{ env.KERNEL }}
+          name: ${{ env.DATE }}-${{ env.FW_NAME }}-k${{ env.KERNEL }}-Firmware
+          files: |
+            lede/bin/targets/x86/64/*.img*
+            lede/bin/targets/x86/64/*.vmdk
+            lede/bin/targets/x86/64/*.qcow2
+            lede/bin/targets/x86/64/sha256sums
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
