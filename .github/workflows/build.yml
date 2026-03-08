@@ -52,7 +52,7 @@ jobs:
       # 获取日期 + 内核版本
       - name: Get Build Info
         run: |
-          echo "DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+          echo "DATE=$(TZ=Asia/Shanghai date +%Y%m%d)" >> $GITHUB_ENV
           echo "KERNEL=$(grep KERNEL_PATCHVER lede/target/linux/x86/Makefile | awk -F= '{print $2}')" >> $GITHUB_ENV
 
       # 上传固件
