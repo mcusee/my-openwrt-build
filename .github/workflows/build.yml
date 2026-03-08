@@ -82,3 +82,19 @@ jobs:
             lede/bin/targets/x86/64/sha256sums
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # 发送 Telegram 通知
+      - name: Send Telegram Notification
+        run: |
+          MESSAGE="✅ OpenWrt 编译完成
+
+          📅 版本: ${{ env.DATE }}
+          🧠 Kernel: ${{ env.KERNEL }}
+
+          🔗 下载:
+          https://github.com/${{ github.repository }}/releases"
+
+          curl -s "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+          -d chat_id="${{ secrets.TG_CHAT_ID }}" \
+          -d text="$MESSAGE"
