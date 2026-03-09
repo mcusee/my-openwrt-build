@@ -50,7 +50,6 @@
 <p align="center">
   <img src="https://ghchart.rshah.org/mcusee" alt="mcusee's Github Chart" />
 </p>
----
 
 ## ✨ 项目亮点
 
