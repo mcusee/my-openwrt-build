@@ -38,7 +38,6 @@
   <img src="https://img.shields.io/github/last-commit/mcusee/OpenWrt-build?style=flat-square&logo=git" alt="Last Commit">
 </p>
 
----
 <div align="center">
 
 | 平台+设备名称 | 固件编译状态 | 配置文件 | 固件下载 |
