@@ -32,7 +32,7 @@
 | **OpenWrt X86_64 (Kernel 5.4)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/编译-脚本-orange.svg?logo=gnubash)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy.sh) | [![](https://img.shields.io/badge/下载-最新固件-blueviolet.svg?logo=github)](https://github.com/mcusee/OpenWrt-build/releases) |
 
 </div>
-## 📊 项目统计
+📊 项目统计
 <p align="center">
   <img src="https://ghchart.rshah.org/mcusee" alt="mcusee's Github Chart" />
 </p>
