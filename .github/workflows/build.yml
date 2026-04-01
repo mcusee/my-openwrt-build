@@ -17,10 +17,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kernel: ['5.4', '5.15']  # 同时编译两个内核
+        include:
+          - kernel: '5.4'
+            script: 'build-diy5.4.sh'
+          - kernel: '5.15'
+            script: 'build-diy5.15.sh'
 
     steps:
-      # 拉取你自己的仓库（包含 build-diy.sh）
+      # 拉取你自己的仓库（包含 build-diy5.4.sh 和 build-diy5.15.sh）
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -53,12 +57,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-lede-dl-
 
-      # 执行 DIY 脚本运行脚本并传递 kernel内核
+      # 执行对应的 DIY 脚本
       - name: Run DIY Script
         run: |
+          test -f "${{ github.workspace }}/${{ matrix.script }}"
+          chmod +x "${{ github.workspace }}/${{ matrix.script }}"
           cd lede
-          chmod +x ../build-diy.sh
-          ../build-diy.sh ${{ matrix.kernel }}
+          "${{ github.workspace }}/${{ matrix.script }}" "${{ matrix.kernel }}"
 
       # 获取日期 + 内核版本
       - name: Get Build Info
@@ -92,6 +97,7 @@ jobs:
           tag_name: ${{ env.DATE }}-OpenWrt-k${{ env.KERNEL }}-Firmware
           name: ${{ env.DATE }}-OpenWrt-k${{ env.KERNEL }}-Firmware
           make_latest: ${{ matrix.kernel == '5.15' }}
+          overwrite_files: true
           files: |
             lede/bin/targets/x86/64/*.img*
             lede/bin/targets/x86/64/*.vmdk
@@ -112,5 +118,5 @@ jobs:
           https://github.com/${{ github.repository }}/releases"
 
           curl -s "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
-          -d chat_id="${{ secrets.TG_CHAT_ID }}" \
-          -d text="$MESSAGE"
+            -d chat_id="${{ secrets.TG_CHAT_ID }}" \
+            -d text="$MESSAGE"
