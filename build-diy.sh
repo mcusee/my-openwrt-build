@@ -159,9 +159,8 @@ fi
 # ====================== mdio-devres 处理结束 ======================
 
 echo "========================================"
-echo "添加插件"
+echo "克隆仓库到 studio 目录"
 echo "========================================"
-
 echo "克隆仓库到 studio 目录"
 rm -rf studio
 git clone https://github.com/mcusee/studio.git studio
