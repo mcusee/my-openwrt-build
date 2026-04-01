@@ -136,27 +136,36 @@ KERNEL=$1
 sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=${KERNEL}/" target/linux/x86/Makefile
 echo "修改完成"
 
-# ====================== mdio-devres 智能处理 ======================
+echo "========================================"
+echo "================ 修复补丁 ==============="
+echo "========================================"
 echo "检查 x86 内核是否为 5.4..."
 if grep -q '^KERNEL_PATCHVER:=5\.4$' target/linux/x86/Makefile; then
-  echo "检测到 x86 内核为 5.4"
-  sed -i '/define KernelPackage\/mdio-devres/,/endef/ {
-    s|DEPENDS:=+kmod-libphy|DEPENDS:=@!LINUX_5_4 +kmod-libphy|
-    s|KCONFIG:=CONFIG_MDIO_DEVRES=y|KCONFIG:=CONFIG_MDIO_DEVRES|
-    s|KCONFIG:=CONFIG_MDIO_DEVRES=m|KCONFIG:=CONFIG_MDIO_DEVRES|
-  }' package/kernel/linux/modules/netdevices.mk
-  sed -i '/define KernelPackage\/ixgbe/,/endef/ {
-    s|+kmod-libphy +kmod-mdio-devres|+kmod-libphy +!LINUX_5_4:kmod-mdio-devres|
-  }' package/kernel/linux/modules/netdevices.mk
-  echo "mdio-devres / ixgbe 修复完成"
+    echo "检测到 x86 内核为 5.4"
+    sed -i '/define KernelPackage\/mdio-devres/,/endef/ {
+        s|DEPENDS:=+kmod-libphy|DEPENDS:=@!LINUX_5_4 +kmod-libphy|
+        s|KCONFIG:=CONFIG_MDIO_DEVRES=y|KCONFIG:=CONFIG_MDIO_DEVRES|
+        s|KCONFIG:=CONFIG_MDIO_DEVRES=m|KCONFIG:=CONFIG_MDIO_DEVRES|
+    }' package/kernel/linux/modules/netdevices.mk
+    sed -i '/define KernelPackage\/ixgbe/,/endef/ {
+        s|+kmod-libphy +kmod-mdio-devres|+kmod-libphy +!LINUX_5_4:kmod-mdio-devres|
+    }' package/kernel/linux/modules/netdevices.mk
+    echo "mdio-devres / ixgbe 修复完成"
+    if [ -d "package/kernel/ksmbd" ]; then
+        echo "拷贝 ksmbd 5.4 修复补丁..."
+        mkdir -p package/kernel/ksmbd/patches
+        cp -f patches/100-fix-ksmbd-linux-5.4.patch package/kernel/ksmbd/patches/
+        echo "ksmbd 5.4 修复补丁已添加"
+    else
+        echo "未找到 package/kernel/ksmbd，跳过 ksmbd 补丁"
+    fi
 else
-  echo "x86 内核不是 5.4，跳过修复"
+    echo "x86 内核不是 5.4，跳过相关修复"
 fi
-# ====================== mdio-devres 处理结束 ======================
+echo "========================================"
+echo "================ 修复补丁 ==============="
+echo "========================================"
 
-echo "========================================"
-echo "克隆仓库到 studio 目录"
-echo "========================================"
 echo "克隆仓库到 studio 目录"
 rm -rf studio
 git clone https://github.com/mcusee/studio.git studio

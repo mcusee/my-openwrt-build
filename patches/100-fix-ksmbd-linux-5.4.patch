@@ -1,0 +1,12 @@
+--- a/transport_ipc.c
++++ b/transport_ipc.c
+@@ -835,7 +835,9 @@ static int ksmbd_rpc_write(struct ksmbd_session *sess, struct ksmbd_rpc_command
+ 	struct ksmbd_rpc *rpc;
+ 	int ret;
+-	lockdep_assert_not_held(&sess->rpc_lock);
++	/* linux 5.4 does not provide lockdep_assert_not_held() */
++	/* lockdep_assert_not_held(&sess->rpc_lock); */
++
+ 	rpc = ksmbd_rpc_get(sess, id);
+ 	if (!rpc)
+ 		return -EINVAL;
