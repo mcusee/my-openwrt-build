@@ -140,30 +140,22 @@ sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=${KERNEL}/" target/linux/x86/Make
 echo "修改完成"
 
 # ====================== mdio-devres 智能处理 ======================
-# 规则：只有 5.4 需要禁用，其他所有内核版本（5.15、6.x 等）都保持作者原配置
-echo "========================================"
-echo "处理 kmod-mdio-devres（仅 5.4 禁用，其他内核正常）"
-echo "========================================"
-
-if [ "$KERNEL" = "5.4" ]; then
-    echo "检测到 KERNEL=5.4，开始处理 mdio-devres..."
-
-    # 检查作者是否已经自行加入版本限制
-    if grep -qE "LINUX_5_10|LINUX_5_15|!LINUX_5_4" package/kernel/linux/modules/netdevices.mk; then
-        echo "✅ 作者已提供版本限制，信任作者修复，跳过手动修改"
-    else
-        echo "⚠️  作者尚未修复 5.4 问题，自动添加仅 5.4 禁用的规则"
-        
-        sed -i '/define KernelPackage\/mdio-devres/,/endef/ {
-            s/DEPENDS:=.*/DEPENDS:=@!LINUX_5_4 +kmod-libphy +(TARGET_armvirt||TARGET_bcm27xx_bcm2708||TARGET_loongarch64||TARGET_malta||TARGET_tegra):kmod-of-mdio/
-            s/KCONFIG:=CONFIG_MDIO_DEVRES=y/KCONFIG:=CONFIG_MDIO_DEVRES/
-        }' package/kernel/linux/modules/netdevices.mk
-    fi
+echo "检查 x86 内核是否为 5.4..."
+if grep -q '^KERNEL_PATCHVER:=5\.4$' target/linux/x86/Makefile; then
+  echo "检测到 x86 内核为 5.4"
+  if ! grep -q '@!LINUX_5_4' package/kernel/linux/modules/netdevices.mk; then
+    sed -i '/define KernelPackage\/mdio-devres/,/endef/ {
+      s|DEPENDS:=+kmod-libphy|DEPENDS:=@!LINUX_5_4 +kmod-libphy|
+      s|KCONFIG:=CONFIG_MDIO_DEVRES=y|KCONFIG:=CONFIG_MDIO_DEVRES|
+      s|KCONFIG:=CONFIG_MDIO_DEVRES=m|KCONFIG:=CONFIG_MDIO_DEVRES|
+    }' package/kernel/linux/modules/netdevices.mk
+    echo "mdio-devres 修复完成"
+  else
+    echo "mdio-devres 已经修复过，跳过"
+  fi
 else
-    echo "当前 KERNEL=${KERNEL}（非 5.4），不做任何修改，保持作者原配置（正常启用 mdio-devres）"
+  echo "x86 内核不是 5.4，跳过修复"
 fi
-
-echo "mdio-devres 处理完成"
 # ====================== mdio-devres 处理结束 ======================
 
 echo "========================================"
