@@ -154,7 +154,7 @@ if grep -q '^KERNEL_PATCHVER:=5\.4$' target/linux/x86/Makefile; then
     if [ -d "package/kernel/ksmbd" ]; then
         echo "拷贝 ksmbd 5.4 修复补丁..."
         mkdir -p package/kernel/ksmbd/patches
-        cp -f patches/100-fix-ksmbd-linux-5.4.patch package/kernel/ksmbd/patches/
+        cp -f "$GITHUB_WORKSPACE/patches/100-fix-ksmbd-linux-5.4.patch" package/kernel/ksmbd/patches/
         echo "ksmbd 5.4 修复补丁已添加"
     else
         echo "未找到 package/kernel/ksmbd，跳过 ksmbd 补丁"
