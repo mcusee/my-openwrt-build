@@ -107,14 +107,11 @@ echo "========================================"
 echo "更新 luci-app-passwall"
 echo "========================================"
 rm -rf feeds/small/luci-app-passwall
-
 git clone --depth 1 --filter=blob:none --sparse \
   https://github.com/Openwrt-Passwall/openwrt-passwall.git temp-passwall && \
-
 cd temp-passwall && \
 git sparse-checkout set luci-app-passwall && \
 cd .. && \
-
 mv temp-passwall/luci-app-passwall feeds/small/ && \
 rm -rf temp-passwall && \
 ./scripts/feeds install -f luci-app-passwall
