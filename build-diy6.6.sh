@@ -162,6 +162,39 @@ echo "同步配置文件make defconfig"
 echo "============================================="
 make defconfig
 
+
+# ====================== 精确修复 ksmbd 3.5.4 fortify warning (Linux 6.6+) ======================
+echo "==== 正在修复 ksmbd 3.5.4 (fortify_memset_chk / attribute-warning) ===="
+
+# 自动查找 ksmbd Makefile
+KSMBDDIR=$(find "$(pwd)" -type f -name "Makefile" -path "*/ksmbd/Makefile" | head -n1)
+
+if [ -n "$KSMBDDIR" ]; then
+    echo "找到 ksmbd Makefile: $KSMBDDIR"
+    cd "$(dirname "$KSMBDDIR")"
+
+    # 核心修复：在 Build/Compile 后面插入正确的编译标志（使用 Tab 缩进）
+    sed -i '/define Build\/Compile/a\	EXTRA_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning' Makefile
+
+    # 保险：在文件前面也加一行（防止 EXTRA_CFLAGS 被覆盖）
+    if ! grep -q "Wno-attribute-warning" Makefile; then
+        sed -i '/PKG_LICENSE_FILES:=COPYING/a\EXTRA_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning' Makefile
+    fi
+
+    # 显示修改后的 Build/Compile 部分，方便你在日志中查看是否成功
+    echo "修改后的 Build/Compile 部分如下："
+    sed -n '/define Build\/Compile/,/endef/p' Makefile
+
+    echo "ksmbd Makefile 已成功打补丁！（已添加 -Wno-attribute-warning -Wno-error=attribute-warning）"
+    cd - > /dev/null
+else
+    echo "警告：未找到 ksmbd/Makefile，跳过修复。请确认是否选中了 kmod-fs-ksmbd 包。"
+fi
+
+echo "==== ksmbd 修复完成 ===="
+# =================================================================================
+
+
 echo "============================================="
 echo "开始下载源码...开始下载源码...开始下载源码..."
 echo "============================================="

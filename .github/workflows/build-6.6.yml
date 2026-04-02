@@ -1,0 +1,131 @@
+name: Build OpenWrt
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# 关键修改：在这里全局强制开启 Node.js 24 运行环境
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - kernel: '5.4'
+          #   script: 'build-diy5.4.sh'
+          # - kernel: '5.10'
+          #  script: 'build-diy5.10.sh'
+          # - kernel: '5.15'
+          #  script: 'build-diy5.15.sh'
+          - kernel: '6.6'
+            script: 'build-diy6.6.sh'  
+          # - kernel: '6.12'
+          #  script: 'build-diy6.12.sh'
+
+    steps:
+      # 拉取你自己的仓库（包含 build-diy5.10.sh、build-diy5.15.sh、build-diy6.12.sh）
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # 安装依赖
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+          ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+          bzip2 ccache clang cmake cpio curl device-tree-compiler flex gawk gcc-multilib \
+          g++-multilib gettext genisoimage git gperf haveged help2man intltool \
+          libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev \
+          libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev \
+          libreadline-dev libssl-dev libtool llvm lrzsz libnsl-dev ninja-build \
+          p7zip p7zip-full patch pkgconf python3 python3-pyelftools python3-setuptools \
+          qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+          upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+
+      # 克隆 LEDE
+      - name: Clone LEDE
+        run: |
+          git clone --depth 1 https://github.com/coolsnowwolf/lede.git lede
+
+      # 缓存 dl
+      - name: Cache dl
+        uses: actions/cache@v5
+        with:
+          path: lede/dl
+          key: ${{ runner.os }}-lede-dl-${{ matrix.kernel }}
+          restore-keys: |
+            ${{ runner.os }}-lede-dl-
+
+      # 执行对应的 DIY 脚本
+      - name: Run DIY Script
+        run: |
+          test -f "${{ github.workspace }}/${{ matrix.script }}"
+          chmod +x "${{ github.workspace }}/${{ matrix.script }}"
+          cd lede
+          "${{ github.workspace }}/${{ matrix.script }}" "${{ matrix.kernel }}"
+
+      # 获取日期 + 内核版本
+      - name: Get Build Info
+        run: |
+          # 设置当前日期
+          echo "DATE=$(TZ=Asia/Shanghai date +%Y%m%d)" >> $GITHUB_ENV
+
+          # 使用 matrix.kernel 直接设置内核版本
+          echo "KERNEL=${{ matrix.kernel }}" >> $GITHUB_ENV
+
+      # 上传固件
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-firmware
+          path: lede/bin/targets/x86/64/
+          if-no-files-found: error
+
+      # 上传 packages
+      - name: Upload Packages
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.DATE }}-openwrt-x86-k${{ env.KERNEL }}-packages
+          path: lede/bin/packages/x86_64/
+          if-no-files-found: warn
+          
+      # 发布 Release
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2.5.0
+        with:
+          tag_name: ${{ env.DATE }}-OpenWrt-k${{ env.KERNEL }}-Firmware
+          name: ${{ env.DATE }}-OpenWrt-k${{ env.KERNEL }}-Firmware
+          make_latest: ${{ matrix.kernel == '6.6' }}
+          overwrite_files: true
+          files: |
+            lede/bin/targets/x86/64/*.img*
+            lede/bin/targets/x86/64/*.vmdk
+            lede/bin/targets/x86/64/*.qcow2
+            lede/bin/targets/x86/64/sha256sums
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 发送 Telegram 通知
+      - name: Send Telegram Notification
+        if: ${{ success() }}
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          [ -n "$TG_TOKEN" ] || exit 0
+          [ -n "$TG_CHAT_ID" ] || exit 0
+          MESSAGE="✅ OpenWrt 编译完成
+          📅 版本: ${{ env.DATE }}
+          🧠 Kernel: ${{ env.KERNEL }}
+          🔗 下载:
+          https://github.com/${{ github.repository }}/releases"
+          curl -sS "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT_ID}" \
+            -d text="$MESSAGE"
