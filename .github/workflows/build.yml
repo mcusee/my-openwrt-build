@@ -20,12 +20,14 @@ jobs:
         include:
           # - kernel: '5.4'
           #   script: 'build-diy5.4.sh'
-          - kernel: '5.10'
-            script: 'build-diy5.10.sh'
+          # - kernel: '5.10'
+          #  script: 'build-diy5.10.sh'
           - kernel: '5.15'
             script: 'build-diy5.15.sh'
-          - kernel: '6.12'
-            script: 'build-diy6.12.sh'
+          - kernel: '6.6'
+            script: 'build-diy6.6.sh'  
+          # - kernel: '6.12'
+          #  script: 'build-diy6.12.sh'
 
     steps:
       # 拉取你自己的仓库（包含 build-diy5.10.sh、build-diy5.15.sh、build-diy6.12.sh）
