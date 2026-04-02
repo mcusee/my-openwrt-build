@@ -40,10 +40,11 @@
 
 <div align="center">
 
-| 平台+设备名称 | 固件编译状态 | 配置文件 | 固件下载 |
+| 平台+设备名称 | 工作流状态 | 编译脚本 | 固件下载 |
 | :-------------: | :-------------: | :-------------: | :-------------: |
-| **OpenWrt X86_64 (Kernel 5.15)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/编译-脚本-orange.svg?logo=gnubash)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy.sh) | [![](https://img.shields.io/badge/下载-最新固件-blueviolet.svg?logo=github)](https://github.com/mcusee/OpenWrt-build/releases) |
-| **OpenWrt X86_64 (Kernel 5.4)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/编译-脚本-orange.svg?logo=gnubash)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy.sh) | [![](https://img.shields.io/badge/下载-最新固件-blueviolet.svg?logo=github)](https://github.com/mcusee/OpenWrt-build/releases) |
+| **OpenWrt X86_64 (Kernel 5.10)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/build--diy5.10.sh-orange.svg?logo=gnubash&logoColor=white)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy5.10.sh) | [![](https://img.shields.io/badge/Releases-%E4%B8%8B%E8%BD%BD-blueviolet.svg?logo=github&logoColor=white)](https://github.com/mcusee/OpenWrt-build/releases) |
+| **OpenWrt X86_64 (Kernel 5.15)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/build--diy5.15.sh-orange.svg?logo=gnubash&logoColor=white)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy5.15.sh) | [![](https://img.shields.io/badge/Releases-%E4%B8%8B%E8%BD%BD-blueviolet.svg?logo=github&logoColor=white)](https://github.com/mcusee/OpenWrt-build/releases) |
+| **OpenWrt X86_64 (Kernel 6.12)** | [![Build Status](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml/badge.svg)](https://github.com/mcusee/OpenWrt-build/actions/workflows/build.yml) | [![](https://img.shields.io/badge/build--diy6.12.sh-orange.svg?logo=gnubash&logoColor=white)](https://github.com/mcusee/OpenWrt-build/blob/main/build-diy6.12.sh) | [![](https://img.shields.io/badge/Releases-%E4%B8%8B%E8%BD%BD-blueviolet.svg?logo=github&logoColor=white)](https://github.com/mcusee/OpenWrt-build/releases) |
 
 </div>
 📊 项目统计
