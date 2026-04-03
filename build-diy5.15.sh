@@ -151,7 +151,7 @@ wget -O package/downloads/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg 
 https://raw.githubusercontent.com/mcusee/studio/main/icons/bg1.jpg
 echo "替换完成"
 
-wget -O .config https://raw.githubusercontent.com/mcusee/OpenWrt-build/main/.config
+wget -O .config https://raw.githubusercontent.com/mcusee/OpenWrt-build/refs/heads/main/Backup/5.15/.config
 
 echo "============================================="
 echo "DIY 脚本执行完成"
