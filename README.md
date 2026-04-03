@@ -37,7 +37,6 @@
   <img src="https://img.shields.io/github/forks/mcusee/OpenWrt-build?style=flat-square&color=lightgrey&logo=github" alt="Forks">
   <img src="https://img.shields.io/github/last-commit/mcusee/OpenWrt-build?style=flat-square&logo=git" alt="Last Commit">
 </p>
-
 <div align="center">
 
 | 平台+设备名称 | 工作流状态 | 编译脚本 | 编译说明 | 固件下载 |
