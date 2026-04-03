@@ -162,65 +162,6 @@ echo "同步配置文件make defconfig"
 echo "============================================="
 make defconfig
 
-
-# ====================== 针对 coolsnowwolf/lede 的 ksmbd 修复 ======================
-echo "==== 正在修复 ksmbd 3.5.4 fortify warning ===="
-
-# 直接指定正确路径（你的情况）
-KSMBDDIR="package/kernel/ksmbd/Makefile"
-
-if [ -f "$KSMBDDIR" ]; then
-    echo "找到 ksmbd Makefile: $KSMBDDIR"
-    cd "package/kernel/ksmbd"
-
-    # 使用 patch 精确修复（最可靠）
-    cat > /tmp/ksmbd_fix.patch << 'EOF'
---- a/Makefile
-+++ b/Makefile
-@@ -13,6 +13,8 @@ PKG_HASH:=ad49d8e893240b831adffecc41c69e2b0baaa92105849b40dc32030512b96521
- PKG_LICENSE:=GPL-2.0-or-later
- PKG_LICENSE_FILES:=COPYING
-
-+TARGET_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning
-+
- include $(INCLUDE_DIR)/kernel.mk
- include $(INCLUDE_DIR)/package.mk
-
-@@ -68,7 +70,8 @@ EXTRA_CFLAGS += -DCONFIG_SMB_INSECURE_SERVER=1
- endif
-
- define Build/Compile
--$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" \
-+$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" \
-+	EXTRA_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning \
- EXTRA_CFLAGS="$(EXTRA_CFLAGS)" \
- $(PKG_EXTRA_KCONFIG) \
- CONFIG_SMB_SERVER=m \
-EOF
-
-    if patch -p1 --forward --silent < /tmp/ksmbd_fix.patch; then
-        echo "ksmbd 修复成功！"
-        echo "=== 修改后的关键内容 ==="
-        sed -n '10,85p' Makefile
-    else
-        echo "patch 失败，尝试备用方法..."
-        sed -i '/PKG_LICENSE_FILES:=COPYING/a\TARGET_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning' Makefile
-        sed -i '/define Build\/Compile/a\	EXTRA_CFLAGS += -Wno-attribute-warning -Wno-error=attribute-warning' Makefile
-        echo "备用方法完成"
-        sed -n '10,85p' Makefile
-    fi
-
-    cd - > /dev/null
-else
-    echo "警告：未找到 package/kernel/ksmbd/Makefile"
-    echo "当前目录下 ls package/kernel/ 结果："
-    ls -l package/kernel/ 2>/dev/null || echo "无法列出目录"
-fi
-
-echo "==== ksmbd 修复完成 ===="
-# =================================================================================
-
-
 echo "============================================="
 echo "开始下载源码...开始下载源码...开始下载源码..."
 echo "============================================="
