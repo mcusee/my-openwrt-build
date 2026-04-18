@@ -126,6 +126,7 @@ echo "修改本地文件"
 echo "========================================"
 echo "修改默认IP"
 sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/luci/bin/config_generate
+sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_generate
 
 echo "设置默认主题为 argon"
 # 使用 gi 标志，一个命令同时搞定大小写，且描述和依赖包名都换掉
