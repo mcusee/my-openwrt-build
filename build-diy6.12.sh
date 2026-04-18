@@ -5,6 +5,42 @@ echo "========================================="
 echo "开始执行 DIY 自定义脚本"
 echo "========================================="
 
+echo "========================================="
+echo "处理 feeds.conf.default 是否已是目标状态..."
+echo "========================================="
+FILENAME="feeds.conf.default"
+# 目标：强制指定 master 分支
+TARGET_LINE="src-git luci https://github.com/coolsnowwolf/luci.git;master"
+
+echo "开始调整 luci 仓库分支..."
+
+# 1. 注释掉所有带有特定版本号的 luci 行 (如 23.05, 24.10, 25.12 等)
+# 匹配规则：以 src-git luci 开头，且包含分号 ";" 的行
+sed -i '/^src-git luci.*;/s/^/#/' "$FILENAME"
+
+# 2. 检查是否已经存在目标 master 行
+if grep -q "^$TARGET_LINE$" "$FILENAME"; then
+    echo "master 分支已处于启用状态，无需操作。"
+else
+    # 检查是否有被注释掉的 master 行，如果有则解锁
+    if grep -q "#$TARGET_LINE" "$FILENAME"; then
+        sed -i "s|^#$TARGET_LINE$|$TARGET_LINE|" "$FILENAME"
+        echo "已取消注释并启用 master 分支。"
+    else
+        # 如果完全没有这一行，则在原有的 luci 列表附近（或者末尾）添加
+        # 我们把它插在第 3 行，通常就在原来的 luci 列表位置
+        sed -i "3i $TARGET_LINE" "$FILENAME"
+        echo "已在配置文件中插入 master 分支。"
+    fi
+fi
+
+# 3. 最后清理一下：确保不带分号的那个默认源（原本的第二行）也被注释掉
+# 防止它拉取到默认的 23.05
+sed -i '/https:\/\/github.com\/coolsnowwolf\/luci$/s/^/#/' "$FILENAME"
+
+echo "修改完成！"
+echo "=============== 修改完成！==============="
+
 echo "=============== 更新源码 ==============="
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -40,40 +76,42 @@ echo "→ 清理 feeds/ 下的源目录..."
 
 rm -rf feeds/packages/net/adguardhome
 rm -rf feeds/luci/themes/luci-theme-argon
+rm -rf feeds/kenzo/luci-app-argon-config
 rm -rf feeds/kenzo/luci-app-adguardhome
 rm -rf feeds/kenzo/smartdns
 rm -rf feeds/kenzo/luci-app-smartdns
+rm -rf feeds/kenzo/luci-theme-argon
 rm -rf feeds/kenzo/adguardhome
 rm -rf feeds/small/luci-app-fchomo
 rm -rf feeds/kenzo/luci-theme-alpha
 rm -rf feeds/kenzo/luci-app-eqos
-rm -rf feeds/luci/applications/luci-app-adguardhome
-rm -rf feeds/luci/applications/luci-app-passwall
-rm -rf feeds/luci/applications/luci-app-passwall2
-rm -rf feeds/luci/applications/luci-app-openclash
 
 echo "→ 清理索引 package/feeds/ 下的软链接..."
 
 rm -rf package/feeds/packages/adguardhome
 rm -rf package/feeds/luci/luci-theme-argon
+rm -rf package/feeds/kenzo/luci-app-argon-config
 rm -rf package/feeds/kenzo/luci-app-adguardhome
 rm -rf package/feeds/kenzo/smartdns
 rm -rf package/feeds/kenzo/luci-app-smartdns
+rm -rf package/feeds/kenzo/luci-theme-argon
 rm -rf package/feeds/kenzo/adguardhome
 rm -rf package/feeds/small/luci-app-fchomo
 rm -rf package/feeds/kenzo/luci-theme-alpha
 rm -rf package/feeds/kenzo/luci-app-eqos
-rm -rf package/feeds/luci/luci-app-adguardhome
-rm -rf package/feeds/luci/luci-app-passwall
-rm -rf package/feeds/luci/luci-app-passwall2
-rm -rf package/feeds/luci/luci-app-openclash
-
 
 echo "============= 清理索引完成！============="
 
 echo "==============================="
 echo "添加插件"
 echo "==============================="
+# luci-theme-argon
+if [ -d "package/downloads/luci-theme-argon" ]; then
+    echo "luci-theme-argon 已存在，跳过"
+else
+    echo "正在克隆 luci-theme-argon..."
+    git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/downloads/luci-theme-argon
+fi
 
 # luci-app-adguardhome
 if [ -d "package/luci-app-adguardhome" ]; then
@@ -105,7 +143,7 @@ sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_genera
 
 echo "设置默认主题为 argon"
 # 使用 gi 标志，一个命令同时搞定大小写，且描述和依赖包名都换掉
-sed -i "s/bootstrap/argon/gi" feeds/luci/collections/luci-light/Makefile
+sed -i "s/bootstrap/argon/gi" feeds/luci/collections/luci/Makefile
 sed -i "s/bootstrap/argon/gi" feeds/luci/collections/luci-nginx/Makefile
 sed -i "s/bootstrap/argon/gi" feeds/luci/collections/luci-ssl-nginx/Makefile
 
