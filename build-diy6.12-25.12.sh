@@ -127,22 +127,14 @@ KERNEL=$1
 sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=${KERNEL}/" target/linux/x86/Makefile
 echo "修改完成"
 
-echo "========================================"
-echo "克隆仓库到 studio 目录"
-echo "========================================"
-echo "克隆仓库到 studio 目录"
-rm -rf studio
-git clone https://github.com/mcusee/studio.git studio
-echo "开始替换 PNG 文件..."
-cp -f studio/icons/*.png feeds/luci/modules/luci-base/htdocs/luci-static/resources/icons/
-echo "PNG 替换完成"
+
 
 echo "下载 bg1.jpg..."
 wget -O package/downloads/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg \
 https://raw.githubusercontent.com/mcusee/studio/main/icons/bg1.jpg
 echo "替换完成"
 
-wget -O .config https://raw.githubusercontent.com/mcusee/OpenWrt-build/main/.config
+wget -O .config https://raw.githubusercontent.com/mcusee/OpenWrt-build/refs/heads/main/Backup/25.12/.config
 
 echo "============================================="
 echo "DIY 脚本执行完成"
