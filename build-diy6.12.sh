@@ -6,37 +6,34 @@ echo "开始执行 DIY 自定义脚本"
 echo "========================================="
 
 echo "========================================="
-echo "处理 feeds.conf.default 是否已是目标状态..."
+echo "开始执行 DIY 自定义脚本"
 echo "========================================="
+
 FILENAME="feeds.conf.default"
-# 目标：强制指定 master 分支
 TARGET_LINE="src-git luci https://github.com/coolsnowwolf/luci.git;master"
 
-echo "开始调整 luci 仓库分支..."
-
-# 1. 注释掉所有带有特定版本号的 luci 行 (如 23.05, 24.10, 25.12 等)
-# 匹配规则：以 src-git luci 开头，且包含分号 ";" 的行
+# 1. 注释掉所有带分号的 luci 行（如 25.12）
+# 改进：加 ^ 确保只匹配没被注释的行，避免变成 ##
 sed -i '/^src-git luci.*;/s/^/#/' "$FILENAME"
 
-# 2. 检查是否已经存在目标 master 行
+# 2. 检查 master 行是否存在
 if grep -q "^$TARGET_LINE$" "$FILENAME"; then
-    echo "master 分支已处于启用状态，无需操作。"
+    echo "master 分支已处于启用状态。"
 else
-    # 检查是否有被注释掉的 master 行，如果有则解锁
-    if grep -q "#$TARGET_LINE" "$FILENAME"; then
-        sed -i "s|^#$TARGET_LINE$|$TARGET_LINE|" "$FILENAME"
+    # 改进：这里用 ^#* 兼容你之前可能跑错导致多出的 # 号
+    if grep -q "^#*$TARGET_LINE$" "$FILENAME"; then
+        sed -i "s|^#*$TARGET_LINE$|$TARGET_LINE|" "$FILENAME"
         echo "已取消注释并启用 master 分支。"
     else
-        # 如果完全没有这一行，则在原有的 luci 列表附近（或者末尾）添加
-        # 我们把它插在第 3 行，通常就在原来的 luci 列表位置
+        # 针对你发的内容，脚本会走这一步，在第 3 行插入
         sed -i "3i $TARGET_LINE" "$FILENAME"
         echo "已在配置文件中插入 master 分支。"
     fi
 fi
 
-# 3. 最后清理一下：确保不带分号的那个默认源（原本的第二行）也被注释掉
-# 防止它拉取到默认的 23.05
-sed -i '/https:\/\/github.com\/coolsnowwolf\/luci$/s/^/#/' "$FILENAME"
+# 3. 确保不带分号的默认源也被注释
+# 改进：加 ^ 确保只处理没被注释的行
+sed -i '/^src-git luci https:\/\/github.com\/coolsnowwolf\/luci$/s/^/#/' "$FILENAME"
 
 echo "修改完成！"
 echo "=============== 修改完成！==============="
