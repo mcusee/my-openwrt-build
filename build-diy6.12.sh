@@ -35,6 +35,11 @@ fi
 # 改进：加 ^ 确保只处理没被注释的行
 sed -i '/^src-git luci https:\/\/github.com\/coolsnowwolf\/luci$/s/^/#/' "$FILENAME"
 
+# ========== 新增部分：注释掉 helloworld ==========
+echo "正在注释 helloworld 源..."
+sed -i '/^src-git helloworld /s/^/#/' "$FILENAME"
+echo "helloworld 已注释完成。"
+
 echo "修改完成！"
 echo "=============== 修改完成！==============="
 
